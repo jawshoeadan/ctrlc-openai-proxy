@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Request, BackgroundTasks, Form
+from fastapi import FastAPI, Request, BackgroundTasks, Form, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 import asyncio, time, json, pyperclip, textwrap, html
 from pathlib import Path
@@ -8,6 +9,13 @@ from pathlib import Path
  # Ensure the 'static' directory exists so StaticFiles doesn't raise an error
 Path("static").mkdir(exist_ok=True)
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # -----------------------------------------------------------------------------
@@ -20,7 +28,6 @@ REQUEST_TIMEOUT    = 1800    # 30 min – change as you like
 
 # -----------------------------------------------------------------------------
 # ──  OpenAI-compatible endpoint
-# -----------------------------------------------------------------------------
 @app.post("/v1/chat/completions")
 async def chat_completions(request: Request):
     body   = await request.json()
@@ -225,6 +232,10 @@ async def janitor():
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(janitor())
+@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
+async def catch_all(path: str):
+    return JSONResponse({"message": "Route not found, but returning 200"}, status_code=200)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
