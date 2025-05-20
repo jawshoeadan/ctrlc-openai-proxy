@@ -137,7 +137,7 @@ def extract_prompt_text(body: dict) -> str:
 # -----------------------------------------------------------------------------
 HTML_PAGE = """
 <!doctype html><html><head>
-  <title>Manual AI Proxy</title>
+  <title>Ctrl+C OpenAI Proxy</title>
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
